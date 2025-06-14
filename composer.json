@@ -30,7 +30,8 @@
     "symfony/framework-bundle": "^6.4",
     "symfony/http-kernel": "^6.4",
     "symfony/yaml": "^6.4 || ^7.1",
-    "tourze/bundle-dependency": "0.0.*"
+    "tourze/bundle-dependency": "0.0.*",
+    "tourze/symfony-runtime-context-bundle": "0.0.*"
   },
   "require-dev": {
     "phpstan/phpstan": "^2.1",

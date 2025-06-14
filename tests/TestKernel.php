@@ -8,6 +8,7 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel;
 use Tourze\DoctrineDedicatedConnectionBundle\DoctrineDedicatedConnectionBundle;
+use Tourze\Symfony\RuntimeContextBundle\RuntimeContextBundle;
 
 class TestKernel extends Kernel
 {
@@ -27,6 +28,7 @@ class TestKernel extends Kernel
         $bundles = [
             new FrameworkBundle(),
             new DoctrineBundle(),
+            new RuntimeContextBundle(),
             new DoctrineDedicatedConnectionBundle(),
         ];
 

@@ -9,9 +9,10 @@ services:
     class: Tourze\DoctrineDedicatedConnectionBundle\Factory\DedicatedConnectionFactory
     arguments:
       - '@doctrine.dbal.default_connection'
+      - '@Tourze\Symfony\RuntimeContextBundle\Service\ContextServiceInterface'
       - '@?logger'
     tags:
-      - { name: kernel.reset, method: closeAll }
+      - { name: kernel.reset, method: closeCurrentContext }
     public: true  # Make it public for testing
 
   # 创建别名方便使用

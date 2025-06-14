@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Tourze\Symfony\RuntimeContextBundle\Service\ContextServiceInterface;
 
 /**
  * 专用数据库连接工厂
@@ -18,6 +19,7 @@ class DedicatedConnectionFactory
 
     public function __construct(
         private readonly Connection $defaultConnection,
+        private readonly ContextServiceInterface $contextService,
         ?LoggerInterface $logger = null
     ) {
         $this->logger = $logger ?? new NullLogger();
@@ -25,14 +27,21 @@ class DedicatedConnectionFactory
 
     /**
      * 创建或获取专用的数据库连接
+     * 在协程环境中，每个协程上下文都会有独立的连接池
      */
     public function createConnection(string $channel): Connection
     {
-        if (isset($this->connections[$channel])) {
-            return $this->connections[$channel];
+        // 获取上下文相关的连接键
+        $contextKey = $this->getContextKey($channel);
+
+        if (isset($this->connections[$contextKey])) {
+            return $this->connections[$contextKey];
         }
 
-        $this->logger->debug('Creating dedicated connection for channel: {channel}', ['channel' => $channel]);
+        $this->logger->debug('Creating dedicated connection for channel: {channel} in context: {context}', [
+            'channel' => $channel,
+            'context' => $this->contextService->getId()
+        ]);
 
         // 获取默认连接参数
         $defaultParams = $this->defaultConnection->getParams();
@@ -43,7 +52,14 @@ class DedicatedConnectionFactory
         // 创建连接
         $connection = DriverManager::getConnection($params);
         
-        $this->connections[$channel] = $connection;
+        $this->connections[$contextKey] = $connection;
+        
+        // 在协程环境中，注册连接清理回调
+        if ($this->contextService->supportCoroutine()) {
+            $this->contextService->defer(function () use ($contextKey) {
+                $this->closeConnection($contextKey);
+            });
+        }
         
         return $connection;
     }
@@ -87,6 +103,29 @@ class DedicatedConnectionFactory
         return $params;
     }
 
+    /**
+     * 获取上下文相关的连接键
+     */
+    private function getContextKey(string $channel): string
+    {
+        if ($this->contextService->supportCoroutine()) {
+            return $this->contextService->getId() . ':' . $channel;
+        }
+        
+        return $channel;
+    }
+
+    /**
+     * 关闭指定的连接
+     */
+    private function closeConnection(string $contextKey): void
+    {
+        if (isset($this->connections[$contextKey])) {
+            $this->logger->debug('Closing dedicated connection: {contextKey}', ['contextKey' => $contextKey]);
+            $this->connections[$contextKey]->close();
+            unset($this->connections[$contextKey]);
+        }
+    }
 
     /**
      * 获取所有已创建的连接
@@ -97,14 +136,42 @@ class DedicatedConnectionFactory
     }
 
     /**
-     * 关闭所有连接
+     * 关闭所有连接，或者只关闭当前上下文的连接
      */
-    public function closeAll(): void
+    public function closeAll(?string $contextId = null): void
     {
-        foreach ($this->connections as $connection) {
-            $connection->close();
+        if ($contextId === null) {
+            // 关闭所有连接
+            foreach ($this->connections as $connection) {
+                $connection->close();
+            }
+            $this->connections = [];
+        } else {
+            // 只关闭指定上下文的连接
+            $prefix = $contextId . ':';
+            $toClose = [];
+            
+            foreach (array_keys($this->connections) as $key) {
+                if (str_starts_with($key, $prefix)) {
+                    $toClose[] = $key;
+                }
+            }
+            
+            foreach ($toClose as $key) {
+                $this->closeConnection($key);
+            }
         }
-        
-        $this->connections = [];
+    }
+
+    /**
+     * 关闭当前上下文的所有连接
+     */
+    public function closeCurrentContext(): void
+    {
+        if ($this->contextService->supportCoroutine()) {
+            $this->closeAll($this->contextService->getId());
+        } else {
+            $this->closeAll();
+        }
     }
 }
