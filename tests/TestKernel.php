@@ -42,6 +42,11 @@ class TestKernel extends Kernel
             $container->loadFromExtension('framework', [
                 'test' => true,
                 'secret' => 'test',
+                'handle_all_throwables' => true,
+                'http_method_override' => false,
+                'php_errors' => [
+                    'log' => true,
+                ],
                 'router' => [
                     'resource' => '%kernel.project_dir%/config/routes.yaml',
                     'utf8' => true,
