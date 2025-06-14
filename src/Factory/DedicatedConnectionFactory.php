@@ -45,22 +45,22 @@ class DedicatedConnectionFactory
 
         // 获取默认连接参数
         $defaultParams = $this->defaultConnection->getParams();
-        
+
         // 构建专用连接参数（完全基于环境变量）
         $params = $this->buildConnectionParams($channel, $defaultParams);
-        
+
         // 创建连接
         $connection = DriverManager::getConnection($params);
-        
+
         $this->connections[$contextKey] = $connection;
-        
+
         // 在协程环境中，注册连接清理回调
         if ($this->contextService->supportCoroutine()) {
             $this->contextService->defer(function () use ($contextKey) {
                 $this->closeConnection($contextKey);
             });
         }
-        
+
         return $connection;
     }
 
@@ -90,7 +90,7 @@ class DedicatedConnectionFactory
             if (isset($_ENV[$envVar])) {
                 $params[$param] = $_ENV[$envVar];
                 if ($param === 'port') {
-                    $params[$param] = (int) $params[$param];
+                    $params[$param] = (int)$params[$param];
                 }
             }
         }
@@ -111,7 +111,7 @@ class DedicatedConnectionFactory
         if ($this->contextService->supportCoroutine()) {
             return $this->contextService->getId() . ':' . $channel;
         }
-        
+
         return $channel;
     }
 
@@ -150,13 +150,13 @@ class DedicatedConnectionFactory
             // 只关闭指定上下文的连接
             $prefix = $contextId . ':';
             $toClose = [];
-            
+
             foreach (array_keys($this->connections) as $key) {
                 if (str_starts_with($key, $prefix)) {
                     $toClose[] = $key;
                 }
             }
-            
+
             foreach ($toClose as $key) {
                 $this->closeConnection($key);
             }
