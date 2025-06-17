@@ -139,7 +139,7 @@ class CustomCompilerPassTest extends TestCase
         };
         
         $kernel = new TestKernel([], function (ContainerBuilder $container) {
-            $container->autowire('annotated.service', TestService::class)
+            $container->autowire('annotated.service', TestServiceWithTag::class)
                 ->setPublic(true);
         });
         
@@ -148,6 +148,6 @@ class CustomCompilerPassTest extends TestCase
         $kernel->boot();
         
         // If we reach here without exceptions, the test passes
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 }

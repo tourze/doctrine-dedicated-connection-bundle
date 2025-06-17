@@ -87,6 +87,6 @@ class ConnectionCreationTraitTest extends TestCase
         $kernel->boot();
         
         // If we reach here without exceptions, the test passes
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 }

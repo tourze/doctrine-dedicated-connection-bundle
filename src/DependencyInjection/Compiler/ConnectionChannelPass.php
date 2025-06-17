@@ -74,7 +74,7 @@ class ConnectionChannelPass implements CompilerPassInterface
                     continue;
                 }
                 
-                if ($type->getName() === Connection::class || $type->getName() === 'Doctrine\DBAL\Connection') {
+                if ($type->getName() === Connection::class) {
                     // 直接设置参数，不管是否 autowired
                     $definition->setArgument($index, new Reference($connectionServiceId));
                     
