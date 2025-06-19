@@ -11,6 +11,7 @@ use Tourze\BundleDependency\BundleDependencyInterface;
 use Tourze\DoctrineDedicatedConnectionBundle\DependencyInjection\Compiler\ConnectionChannelPass;
 use Tourze\DoctrineDedicatedConnectionBundle\DependencyInjection\Compiler\DedicatedConnectionCompilerPass;
 use Tourze\DoctrineDedicatedConnectionBundle\DependencyInjection\DoctrineDedicatedConnectionExtension;
+use Tourze\Symfony\RuntimeContextBundle\RuntimeContextBundle;
 
 class DoctrineDedicatedConnectionBundle extends Bundle implements BundleDependencyInterface
 {
@@ -18,6 +19,7 @@ class DoctrineDedicatedConnectionBundle extends Bundle implements BundleDependen
     {
         return [
             DoctrineBundle::class => ['all' => true],
+            RuntimeContextBundle::class => ['all' => true],
         ];
     }
 
@@ -40,6 +42,6 @@ class DoctrineDedicatedConnectionBundle extends Bundle implements BundleDependen
             $this->extension = new DoctrineDedicatedConnectionExtension();
         }
 
-        return $this->extension !== false ? $this->extension : null;
+        return $this->extension;
     }
 }
