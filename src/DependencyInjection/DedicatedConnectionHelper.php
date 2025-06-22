@@ -32,11 +32,11 @@ class DedicatedConnectionHelper
 {
     /**
      * 创建专用数据库连接
-     * 
+     *
      * @param ContainerBuilder $container
      * @param string $channel 连接通道名称
      * @return string 返回创建的连接服务 ID
-     * 
+     *
      * @throws \RuntimeException 如果 bundle 未正确注册
      */
     public static function createConnection(ContainerBuilder $container, string $channel): string
@@ -72,7 +72,7 @@ class DedicatedConnectionHelper
 
     /**
      * 检查指定的连接是否已存在
-     * 
+     *
      * @param ContainerBuilder $container
      * @param string $channel
      * @return bool
@@ -85,7 +85,7 @@ class DedicatedConnectionHelper
 
     /**
      * 获取连接的服务 ID
-     * 
+     *
      * @param string $channel
      * @return string
      */

@@ -23,7 +23,7 @@ class TestKernel extends Kernel
         parent::__construct('test', true);
     }
 
-    public function registerBundles(): array
+    public function registerBundles(): iterable
     {
         $bundles = [
             new FrameworkBundle(),
@@ -70,7 +70,7 @@ class TestKernel extends Kernel
             ]);
 
             // Allow custom configuration
-            if ($this->configureContainer) {
+            if ($this->configureContainer !== null) {
                 ($this->configureContainer)($container);
             }
         });

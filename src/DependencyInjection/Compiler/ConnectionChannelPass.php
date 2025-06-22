@@ -54,7 +54,7 @@ class ConnectionChannelPass implements CompilerPassInterface
     private function processConnectionArgument(ContainerBuilder $container, Definition $definition, string $connectionServiceId): void
     {
         $class = $definition->getClass();
-        if (!$class || !$container->getReflectionClass($class, false)) {
+        if ($class === null || $container->getReflectionClass($class, false) === null) {
             return;
         }
         
@@ -62,7 +62,7 @@ class ConnectionChannelPass implements CompilerPassInterface
             $reflection = $container->getReflectionClass($class);
             $constructor = $reflection->getConstructor();
             
-            if (!$constructor) {
+            if ($constructor === null) {
                 return;
             }
             
