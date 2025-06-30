@@ -125,6 +125,9 @@ class EdgeCasesTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class ServiceWithoutConnection
 {
     private $injectedConnection;
@@ -140,6 +143,9 @@ class ServiceWithoutConnection
     }
 }
 
+/**
+ * @internal
+ */
 class ServiceWithMultipleConnections
 {
     private $connection1;

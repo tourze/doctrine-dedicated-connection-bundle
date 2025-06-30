@@ -11,6 +11,7 @@ use Symfony\Component\DependencyInjection\Reference;
 use Tourze\DoctrineDedicatedConnectionBundle\DependencyInjection\Compiler\ConnectionCreationTrait;
 use Tourze\DoctrineDedicatedConnectionBundle\Tests\Fixtures\TestServiceWithTag;
 use Tourze\DoctrineDedicatedConnectionBundle\Tests\TestKernel;
+use Tourze\DoctrineDedicatedConnectionBundle\Tests\Exception\TestRuntimeException;
 
 class ConnectionCreationTraitTest extends TestCase
 {
@@ -26,7 +27,7 @@ class ConnectionCreationTraitTest extends TestCase
                 
                 // Verify it was created
                 if (!$container->hasDefinition('doctrine.dbal.trait_test_connection')) {
-                    throw new \RuntimeException('Connection was not created by trait');
+                    throw new TestRuntimeException('Connection was not created by trait');
                 }
             }
         };
@@ -76,7 +77,7 @@ class ConnectionCreationTraitTest extends TestCase
                 // Check that it still has the tag from the first pass
                 $definition = $container->getDefinition('doctrine.dbal.duplicate_test_connection');
                 if (!$definition->hasTag('test.first_pass')) {
-                    throw new \RuntimeException('Connection was recreated');
+                    throw new TestRuntimeException('Connection was recreated');
                 }
             }
         };

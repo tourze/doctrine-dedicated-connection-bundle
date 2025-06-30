@@ -7,6 +7,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+use Tourze\DoctrineDedicatedConnectionBundle\Exception\InvalidArgumentException;
 
 /**
  * 处理 doctrine.dedicated_connection 标签的编译器传递
@@ -15,22 +16,21 @@ use Symfony\Component\DependencyInjection\Reference;
 class ConnectionChannelPass implements CompilerPassInterface
 {
     use ConnectionCreationTrait;
-    
+
     public function process(ContainerBuilder $container): void
     {
-        $taggedServices = $container->findTaggedServiceIds('doctrine.dedicated_connection');
-        
-        if (empty($taggedServices)) {
-            return;
-        }
-        
-        foreach ($taggedServices as $id => $tags) {
-            $definition = $container->getDefinition($id);
-            
+        // 遍历所有定义的服务，查找带有 doctrine.dedicated_connection 标签的服务
+        foreach ($container->getDefinitions() as $id => $definition) {
+            if (!$definition->hasTag('doctrine.dedicated_connection')) {
+                continue;
+            }
+
+            $tags = $definition->getTag('doctrine.dedicated_connection');
+
             foreach ($tags as $attributes) {
                 $channel = $attributes['channel'] ?? null;
                 if (!$channel) {
-                    throw new \InvalidArgumentException(sprintf(
+                    throw new InvalidArgumentException(sprintf(
                         'Service "%s" has a "doctrine.dedicated_connection" tag without a "channel" attribute.',
                         $id
                     ));
@@ -38,16 +38,16 @@ class ConnectionChannelPass implements CompilerPassInterface
 
                 // 确保连接服务存在
                 $this->ensureConnectionService($container, $channel);
-                
+
                 // 获取连接服务 ID
                 $connectionServiceId = sprintf('doctrine.dbal.%s_connection', $channel);
-                
+
                 // 处理服务的 Connection 参数
                 $this->processConnectionArgument($container, $definition, $connectionServiceId);
             }
         }
     }
-    
+
     /**
      * 处理服务的 Connection 参数
      */
@@ -57,27 +57,27 @@ class ConnectionChannelPass implements CompilerPassInterface
         if ($class === null || $container->getReflectionClass($class, false) === null) {
             return;
         }
-        
+
         try {
             $reflection = $container->getReflectionClass($class);
             $constructor = $reflection->getConstructor();
-            
+
             if ($constructor === null) {
                 return;
             }
-            
+
             // 查找 Connection 类型的参数
             foreach ($constructor->getParameters() as $index => $parameter) {
                 $type = $parameter->getType();
-                
+
                 if (!$type instanceof \ReflectionNamedType) {
                     continue;
                 }
-                
+
                 if ($type->getName() === Connection::class) {
                     // 直接设置参数，不管是否 autowired
                     $definition->setArgument($index, new Reference($connectionServiceId));
-                    
+
                     break;
                 }
             }

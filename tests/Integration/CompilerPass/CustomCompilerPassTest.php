@@ -10,6 +10,7 @@ use Symfony\Component\DependencyInjection\Reference;
 use Tourze\DoctrineDedicatedConnectionBundle\DependencyInjection\DedicatedConnectionHelper;
 use Tourze\DoctrineDedicatedConnectionBundle\Tests\Fixtures\TestServiceWithTag;
 use Tourze\DoctrineDedicatedConnectionBundle\Tests\TestKernel;
+use Tourze\DoctrineDedicatedConnectionBundle\Tests\Exception\TestRuntimeException;
 
 class CustomCompilerPassTest extends TestCase
 {
@@ -133,7 +134,7 @@ class CustomCompilerPassTest extends TestCase
                 
                 // Also check that we can get a connection created by annotation
                 if (!$container->hasDefinition('doctrine.dbal.priority_test_connection')) {
-                    throw new \RuntimeException('Connection was not created');
+                    throw new TestRuntimeException('Connection was not created');
                 }
             }
         };

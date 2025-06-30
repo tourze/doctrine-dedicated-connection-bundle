@@ -6,14 +6,15 @@ use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
+use Tourze\DoctrineDedicatedConnectionBundle\Exception\RuntimeException;
 
 /**
  * 辅助类，用于在自定义 CompilerPass 中创建专用数据库连接
- * 
+ *
  * 使用示例：
  * ```php
  * use Tourze\DoctrineDedicatedConnectionBundle\DependencyInjection\DedicatedConnectionHelper;
- * 
+ *
  * class MyCompilerPass implements CompilerPassInterface
  * {
  *     public function process(ContainerBuilder $container): void
@@ -37,7 +38,7 @@ class DedicatedConnectionHelper
      * @param string $channel 连接通道名称
      * @return string 返回创建的连接服务 ID
      *
-     * @throws \RuntimeException 如果 bundle 未正确注册
+     * @throws RuntimeException 如果 bundle 未正确注册
      */
     public static function createConnection(ContainerBuilder $container, string $channel): string
     {
@@ -50,7 +51,7 @@ class DedicatedConnectionHelper
 
         // 确保工厂服务存在
         if (!$container->hasDefinition('doctrine_dedicated_connection.factory')) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'The doctrine_dedicated_connection.factory service is not defined. ' .
                 'Make sure DoctrineDedicatedConnectionBundle is registered before your CompilerPass.'
             );

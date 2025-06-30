@@ -27,7 +27,10 @@ class WithDedicatedConnectionTest extends TestCase
     }
 }
 
-#[WithDedicatedConnection('test')]
+/**
+ * @internal
+ */
+#[WithDedicatedConnection(channel: 'test')]
 class TestClassWithAttribute
 {
 }

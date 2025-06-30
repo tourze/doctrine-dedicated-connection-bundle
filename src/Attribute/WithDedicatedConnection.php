@@ -4,7 +4,7 @@ namespace Tourze\DoctrineDedicatedConnectionBundle\Attribute;
 
 /**
  * 标记一个服务需要使用专用的数据库连接
- * 
+ *
  * 使用示例：
  * ```php
  * #[WithDedicatedConnection('order')]
@@ -15,7 +15,7 @@ namespace Tourze\DoctrineDedicatedConnectionBundle\Attribute;
  *     ) {}
  * }
  * ```
- * 
+ *
  * 该注解会自动创建专用的数据库连接并注入到服务中
  * 数据库配置通过环境变量管理，例如：ORDER_DB_HOST, ORDER_DB_NAME 等
  */
